@@ -19,23 +19,22 @@ grid_dim = (15, 12)
 # Et le numéro du player en fonction de la couleur du token
 grid: list[list[int]] = [[0 for _ in range(grid_dim[0])] for _ in range(grid_dim[1])]
 
-
 # Le numéro du joueur qui joue
 # Pour l'instant le player est le 2 pour que ce soit le 1 qui commence
 turn: int = 2
 
+# La variable qui determine si le jeu est en ligne ou local
+online: bool = False
+# La variable qui determine si le joueur est le 1 ou le 2 pour les parties en ligne
+player_number: int = 1
 
-# Image variable
-# redtoken_img = pygame.transform.scale2x(pygame.image.load("Assets/RedToken.png").convert())
-# bluetoken_img = pygame.transform.scale2x(pygame.image.load("Assets/BlueToken.png").convert())
-# gridsquare_img = pygame.transform.scale2x(pygame.image.load("Assets/GridSquare.png").convert())
+# -----------------------
+# GRAPHICS
+
 BLUE = (0,0,255)
 RED = (255,0,0)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
-
-# -----------------------
-# GRAPHICS
 
 token_radius = 20
 
@@ -133,7 +132,24 @@ def change_turn():
 
 
 # La fonction qui fait toute les action nécessaire quand on pose un jeton
-def game_turn(cursor_x):
+# Quand on joue localement
+def game_turn_local(cursor_x):
+	# On ajoute le jeton
+	add_token_worked =  add_token(cursor_x)
+
+	# Si on n'a pas pu ajouter le token
+	if add_token_worked == False:
+		# On aborte le tour
+		return
+
+	change_turn()
+	draw_cursor(cursor_x, cursor_x, turn)
+
+	# On envoie les données de notre tour ici je suppose
+
+# La fonction qui fait toute les action spéciques quand on pose un jeton
+# Quand on joue online
+def game_turn_online(cursor_x):
 	# On ajoute le jeton
 	add_token_worked =  add_token(cursor_x)
 
@@ -175,7 +191,12 @@ def main():
 					draw_cursor(cursor_x, cursor_x+1, turn)
 				# On ajoute un token
 				if event.key == pygame.K_RETURN:
-					game_turn(cursor_x)
+					# Si on joue en ligne
+					if online == True and turn == player_number:
+						game_turn_online(cursor_x)
+					# Si on joue local	
+					else:
+						game_turn_local(cursor_x)
 				
 		
 
@@ -185,5 +206,10 @@ def main():
 	pygame.quit()
 
 
+
+# On demande si on joue en ligne ou local
+online = input("Jouer en ligne ? (o/n) ").lower()
+if online == 'o': online = True
+else: online = False
 
 main()
